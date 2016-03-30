@@ -3,10 +3,15 @@
 #include <stdlib.h>
 #include <assert.h>
 
-bool isStringCharacterAllUnique(const char* string);
+const int MAX_STRING_LEN = 32;
+
+typedef bool (*UNIQUE_CHECK_FUN)(const char*string);
+
+bool simpleImplement(const char* string);
+bool hashImplement(const char* string);
 
 typedef struct {
-    char string[16];
+    char string[MAX_STRING_LEN];
     bool expected;
 } TEST_CONFIG;
 
@@ -18,14 +23,16 @@ static const TEST_CONFIG testConfig[] = {
 };
 
 int main() {
-    int testIndex = 0;
+    int indexTest = 0;
     bool bResult = false;
     bool bFinalResult = true;
     const TEST_CONFIG* pConfig = NULL;
 
-    for (testIndex = 0; testIndex < (sizeof(testConfig) / sizeof(TEST_CONFIG)); testIndex++) {
-        pConfig = &(testConfig[testIndex]);
-        bResult = isStringCharacterAllUnique(pConfig->string);
+    UNIQUE_CHECK_FUN checkFunc = simpleImplement;
+
+    for (indexTest = 0; indexTest < (sizeof(testConfig) / sizeof(TEST_CONFIG)); indexTest++) {
+        pConfig = &(testConfig[indexTest]);
+        bResult = checkFunc(pConfig->string);
 
         if (bResult != pConfig->expected) {
             bFinalResult = false;
@@ -34,48 +41,46 @@ int main() {
     }
 
     if (bFinalResult == true) {
-        printf("PASS");
+        printf("PASS\n");
     }
-    else{
-        printf("FAIL");
+    else {
+        printf("FAIL\n");
     }
 
     return 0;
 }
 
-//bool isStringCharacterAllUnique(const char* string) {
-//    return true;
-//}
+static char uniqueArray[MAX_STRING_LEN];
 
 // simple implementation
-bool isStringCharacterAllUnique(const char* string) {
-    char* uniqueArray = malloc(sizeof(string));
+bool simpleImplement(const char* string) {
+    int indexUnique = 0;
+    int indexString = 0;
 
-    int size = 0;
-    int index = 0;
+    if (string == NULL)
+        return true;
 
-    while (string[index] != '\0')
+    while (string[indexString] != '\0')
     {
-        char value = string[index];
+        char value = string[indexString];
         int i = 0;
 
-        for (i = 0; i < size; i++) {
+        for (i = 0; i < indexUnique; i++) {
             if (uniqueArray[i] == value) {
-                free(uniqueArray);
-                uniqueArray = NULL;
                 return false;
             }
         }
 
-        uniqueArray[size] = value;
+        uniqueArray[indexUnique] = value;
 
-        size++;
-        index++;
+        indexUnique++;
+        indexString++;
     }
-
-    free(uniqueArray);
-    uniqueArray = NULL;
 
     return true;
 }
 
+// hash table implement
+bool hashImplement(const char* string) {
+    return false;
+}
